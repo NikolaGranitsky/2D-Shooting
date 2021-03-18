@@ -17,14 +17,11 @@ public class playerMovement : MonoBehaviour
     [SerializeField] private Transform ceilingCheck;
     [SerializeField] private Transform groundCheck;
     
-    [Header("Events")]
-    [Space]
-    public UnityEvent OnLandEvent;
-    [System.Serializable]
-    public class BoolEvent : UnityEvent<bool> { }
+    
+    
     private bool m_wasCrouching = false;
 
-    public BoolEvent OnCrouchEvent;
+    
 
     private Animator animator;
 
@@ -41,17 +38,15 @@ public class playerMovement : MonoBehaviour
 
     private void Awake()
     {
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
-        if (OnCrouchEvent == null)
-            OnCrouchEvent = new BoolEvent();
+        animator = GetComponent<Animator>();
+        shootingController = GetComponent<Shooting>();
+        rb = GetComponent<Rigidbody2D>();
     }
     void Start()
     {
-        animator = GetComponent<Animator>();
+
         //CrouchCollider = GetComponent<CircleCollider2D>();
         //BoxCollider = GetComponent<BoxCollider2D>();
-        rb = GetComponent<Rigidbody2D>();
         jumpNumber = 0;
     }
 
@@ -59,6 +54,14 @@ public class playerMovement : MonoBehaviour
     {
         bool wasGrounded;
         wasGrounded = isGrounded;
+        if (MoveAxis > 0 && facingRight)
+        {
+            Flip();
+        }
+        else if (MoveAxis < 0 && !facingRight)
+        {
+            Flip();
+        }
 
         if (!crouching)
         {
@@ -74,7 +77,7 @@ public class playerMovement : MonoBehaviour
             if(!m_wasCrouching)
             {
                 m_wasCrouching = true;
-                OnCrouchEvent.Invoke(true);
+
             }
             CrouchCollider.enabled = false;
             MoveAxis *= crouchSpeed;
@@ -84,10 +87,10 @@ public class playerMovement : MonoBehaviour
             if(m_wasCrouching)
             {
                 m_wasCrouching = false;
-                OnCrouchEvent.Invoke(false);
             }
             CrouchCollider.enabled = true;
-            
+            shootingController.FirePoint.localPosition -= new Vector3(0f, -0.7f, 0f);
+
         }
 
         if(jump && jumpNumber < jumpCount)
@@ -110,8 +113,17 @@ public class playerMovement : MonoBehaviour
         if (!CrouchCollider.enabled)
         {
             UpperBodyCollider.offset = new Vector2(0f, -0.61f);
+            shootingController.FirePoint.localPosition = new Vector3(1, -0.62f, 0f);
         }
-        else UpperBodyCollider.offset = new Vector2(0f, 0.1300541f);
+        else
+        {
+            UpperBodyCollider.offset = new Vector2(0f, 0.1300541f);
+            shootingController.FirePoint.localPosition = new Vector3(0.881f, 0.168f, 0f);
+        }
+
+        
+
+
         Vector2 targetVelocity = new Vector2(MoveAxis * movementSpeed, rb.velocity.y);
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref m_Velocity,MovementDamping);
         animator.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
@@ -120,7 +132,7 @@ public class playerMovement : MonoBehaviour
             if (Mathf.Abs(rb.velocity.y) > 0) animator.SetBool("Jumping", true);
             else animator.SetBool("Jumping", false);
         }
-        else { animator.SetBool("Jumping", false); animator.SetBool("Falling", false); }
+        else  animator.SetBool("Jumping", false);
         animator.SetBool("Crouching", !CrouchCollider.enabled);
         wasGrounded = false;
         
@@ -144,7 +156,13 @@ public class playerMovement : MonoBehaviour
             crouching = false;
         }
 
-        if (Input.GetButtonDown("Shoot")) shootingController.Shoot();
+        if (Input.GetButtonDown("Shoot"))
+        {
+            animator.SetBool("Shooting", true);
+            shootingController.Shoot();
+            Invoke("Wait",0.5f);
+        }
+        
 
 
 
@@ -168,5 +186,9 @@ public class playerMovement : MonoBehaviour
     {
         facingRight = !facingRight;
         transform.Rotate(0f, 180f, 0f);
+    }
+ public void Wait()
+    {
+        animator.SetBool("Shooting", false);
     }
 }

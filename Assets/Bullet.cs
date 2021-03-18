@@ -6,11 +6,14 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField]private float speed = 20;
     [SerializeField]private int damage = 40;
-    Rigidbody2D rb;
+    private Rigidbody2D rb;
+    private Animator animator;
     // Start is called before the first frame update
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        Destroy(this.gameObject, 10);
     }
     void Start()
     {
@@ -22,10 +25,15 @@ public class Bullet : MonoBehaviour
         Enemy enemy = collision.GetComponent<Enemy>();
         if(enemy != null)
         {
-            enemy.TakeDamage(damage);   
+            rb.velocity = new Vector2(0f, 0f);
+            enemy.TakeDamage(damage);
+            animator.SetTrigger("Impact");
         }
         Debug.Log(collision.name);
     }
 
-
+    private void Delete()
+    {
+        Destroy(this.gameObject);
+    }
 }

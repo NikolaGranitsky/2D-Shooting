@@ -6,7 +6,7 @@ public class Shooting : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField]private GameObject bulletPrefab;
-    [SerializeField]private Transform FirePoint;
+    [SerializeField]public Transform FirePoint;
     void Start()
     {
         
