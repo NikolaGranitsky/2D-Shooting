@@ -156,7 +156,7 @@ public class playerMovement : MonoBehaviour
             crouching = false;
         }
 
-        if (Input.GetButtonDown("Shoot"))
+        if (Input.GetButtonDown("Shoot") && isGrounded)
         {
             animator.SetBool("Shooting", true);
             shootingController.Shoot();
