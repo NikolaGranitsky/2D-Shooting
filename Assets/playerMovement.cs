@@ -162,7 +162,13 @@ public class playerMovement : MonoBehaviour
             shootingController.Shoot();
             Invoke("Wait",0.5f);
         }
-        
+
+        if (Input.GetButtonDown("BurstShoot") && isGrounded)
+        {
+            animator.SetBool("Shooting", true);
+            shootingController.BurstShoot();
+            Invoke("Wait", 1f);
+        }
 
 
 
