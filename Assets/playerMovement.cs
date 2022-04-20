@@ -41,6 +41,7 @@ public class playerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         shootingController = GetComponent<Shooting>();
         rb = GetComponent<Rigidbody2D>();
+        Physics2D.IgnoreLayerCollision(6, 7);
     }
     void Start()
     {
@@ -95,10 +96,9 @@ public class playerMovement : MonoBehaviour
 
         if(jump && jumpNumber < jumpCount)
         {
-            rb.AddForce(new Vector2(0f,jumpForce),ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(0f,jumpForce - jumpNumber),ForceMode2D.Impulse);
             isGrounded = false;
             jumpNumber++;
-            Debug.Log(jumpNumber);
         }
 
         if (MoveAxis > 0 && facingRight)
@@ -140,7 +140,6 @@ public class playerMovement : MonoBehaviour
 
     private void Update()
     {
-
         if(Input.GetButtonDown("Jump"))
         {
             jump = true;
@@ -170,8 +169,6 @@ public class playerMovement : MonoBehaviour
             Invoke("Wait", 1f);
         }
 
-
-
     }
 
     void FixedUpdate()
@@ -186,6 +183,17 @@ public class playerMovement : MonoBehaviour
 
         jump = false;
 
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        GameObject DeathObject = collision.gameObject;
+        if (DeathObject.layer == 8)
+        {
+            rb.position = new Vector2(-4.69f, 1.51f);
+            Debug.Log("Return to start");
+        }
     }
 
     private void Flip()
